@@ -1,142 +1,385 @@
-.page {
-  --background: #fafafa;
-  --foreground: #fff;
-
-  --text-primary: #000;
-  --text-secondary: #666;
-
-  --button-primary-hover: #383838;
-  --button-secondary-hover: #f2f2f2;
-  --button-secondary-border: #ebebeb;
-
+.container {
   display: flex;
-  flex: 1;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-geist-sans);
-  background-color: var(--background);
+  min-height: 100vh;
+  padding: 24px;
 }
 
-.main {
+.formWrapper {
   display: flex;
-  flex: 1;
-  width: 100%;
-  max-width: 800px;
   flex-direction: column;
-  align-items: flex-start;
+  gap: 40px;
+  width: 100%;
+  max-width: 720px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
   justify-content: space-between;
-  background-color: var(--foreground);
-  padding: 120px 60px;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 16px;
+  padding: 28px;
+  min-height: 180px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  text-align: left;
+  color: #ffffff;
+  font-family: inherit;
+  outline: none;
 }
 
-.intro {
+.card:hover {
+  border-color: #3a3a3a;
+}
+
+.cardSelected {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3), 0 0 20px rgba(139, 92, 246, 0.15);
+}
+
+.iconWrapper {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(139, 92, 246, 0.1);
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.cardContent {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  gap: 24px;
+  gap: 6px;
 }
 
-.intro h1 {
-  max-width: 320px;
-  font-size: 40px;
-  font-weight: 600;
-  line-height: 48px;
-  letter-spacing: -2.4px;
-  text-wrap: balance;
-  color: var(--text-primary);
-}
-
-.intro p {
-  max-width: 440px;
+.cardTitle {
   font-size: 18px;
-  line-height: 32px;
-  text-wrap: balance;
-  color: var(--text-secondary);
+  font-weight: 700;
+  line-height: 1.3;
+  color: #ffffff;
 }
 
-.intro a {
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.ctas {
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  max-width: 440px;
-  gap: 16px;
+.cardDescription {
   font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #888888;
 }
 
-.ctas a {
+.buttonRow {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 40px;
-  padding: 0 16px;
-  border-radius: 128px;
-  border: 1px solid transparent;
-  transition: 0.2s;
-  cursor: pointer;
-  width: fit-content;
-  font-weight: 500;
+  justify-content: flex-end;
+  gap: 14px;
 }
 
-a.primary {
-  background: var(--text-primary);
-  color: var(--background);
+.continueButton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 32px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #8b5cf6, #a78bfa, #c4b5fd);
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+  font-family: inherit;
+}
+
+.continueButton:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.continueButton:active {
+  transform: translateY(0);
+}
+
+/* Step 2 — Row cards */
+
+.rowList {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.rowCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 16px;
+  padding: 20px 28px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  text-align: left;
+  color: #ffffff;
+  font-family: inherit;
+  outline: none;
+  width: 100%;
+}
+
+.rowCard:hover {
+  border-color: #3a3a3a;
+}
+
+.rowCardSelected {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3), 0 0 20px rgba(139, 92, 246, 0.15);
+}
+
+.rowLeft {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.rowTextContent {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rowPrice {
+  font-size: 14px;
+  font-weight: 600;
+  color: #8B5CF6;
+  white-space: nowrap;
+  margin-left: 20px;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  border: 1px solid #2a2a2a;
+  border-radius: 999px;
+  background: transparent;
+  color: #999999;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+  font-family: inherit;
+}
+
+.backButton:hover {
+  border-color: #3a3a3a;
+  color: #ffffff;
+}
+
+/* Step 3 — Header & Multi-select */
+
+.step3Header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.step3Title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.step3Subtitle {
+  font-size: 14px;
+  color: #888888;
+}
+
+.rowRight {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: 20px;
+}
+
+.checkbox {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  border-radius: 6px;
+  border: 2px solid #3a3a3a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  color: #ffffff;
+}
+
+.checkboxSelected {
+  background: #8B5CF6;
+  border-color: #8B5CF6;
+}
+
+/* Step 4 — Contact form */
+
+.formFields {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
   gap: 8px;
 }
 
-a.secondary {
-  border-color: var(--button-secondary-border);
+.fieldLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: #cccccc;
 }
 
-/* Enable hover only on non-touch devices */
-@media (hover: hover) and (pointer: fine) {
-  a.primary:hover {
-    background: var(--button-primary-hover);
-    border-color: transparent;
-  }
+.fieldInput,
+.fieldTextarea {
+  width: 100%;
+  padding: 14px 18px;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 16px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
 
-  a.secondary:hover {
-    background: var(--button-secondary-hover);
-    border-color: transparent;
-  }
+.fieldInput::placeholder,
+.fieldTextarea::placeholder {
+  color: #555555;
+}
+
+.fieldInput:focus,
+.fieldTextarea:focus {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+}
+
+.fieldTextarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+/* Step 5 — Confirmation */
+
+.confirmationIcon {
+  display: flex;
+  justify-content: center;
+}
+
+.confirmationHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+}
+
+.confirmationTitle {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.confirmationSubtitle {
+  font-size: 16px;
+  color: #888888;
+  max-width: 400px;
+  line-height: 1.5;
+}
+
+.recapCard {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 16px;
+  padding: 28px;
+}
+
+.recapTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 20px;
+}
+
+.recapRows {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.recapRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.recapLabel {
+  font-size: 14px;
+  color: #888888;
+  white-space: nowrap;
+}
+
+.recapValue {
+  font-size: 14px;
+  font-weight: 500;
+  color: #ffffff;
+  text-align: right;
+}
+
+.buttonRowCenter {
+  display: flex;
+  justify-content: center;
 }
 
 @media (max-width: 600px) {
-  .main {
-    padding: 48px 24px;
+  .grid {
+    grid-template-columns: 1fr;
   }
 
-  .intro {
-    gap: 16px;
+  .card {
+    min-height: 140px;
+    padding: 24px;
   }
 
-  .intro h1 {
-    font-size: 32px;
-    line-height: 40px;
-    letter-spacing: -1.92px;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .logo {
-    filter: invert();
+  .rowCard {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 20px;
   }
 
-  .page {
-    --background: #000;
-    --foreground: #000;
+  .rowPrice {
+    margin-left: 0;
+  }
 
-    --text-primary: #ededed;
-    --text-secondary: #999;
+  .buttonRow {
+    flex-direction: column-reverse;
+    gap: 12px;
+  }
 
-    --button-primary-hover: #ccc;
-    --button-secondary-hover: #1a1a1a;
-    --button-secondary-border: #1a1a1a;
+  .backButton,
+  .continueButton {
+    width: 100%;
+    justify-content: center;
   }
 }
