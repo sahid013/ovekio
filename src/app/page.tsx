@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import styles from "./page.module.css";
 
 /* ---- Step 1 Data ---- */
@@ -459,10 +460,12 @@ function CheckIcon() {
 
 /* ---- Component ---- */
 
+const TOTAL_STEPS = 4;
+
 export default function Home() {
   const [step, setStep] = useState(1);
-  const [selectedCategory, setSelectedCategory] = useState<string>("site");
-  const [selectedSubOption, setSelectedSubOption] = useState<string>("landing");
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedSubOption, setSelectedSubOption] = useState<string>("");
   const [selectedExtras, setSelectedExtras] = useState<string[]>([]);
   const [contact, setContact] = useState({
     name: "",
@@ -471,25 +474,36 @@ export default function Home() {
     description: "",
   });
 
+  const handleSelectCategory = (id: string) => {
+    setSelectedCategory(id);
+    setSelectedSubOption("");
+    setSelectedExtras([]);
+    setStep(2);
+  };
+
+  const handleSelectSubOption = (id: string) => {
+    setSelectedSubOption(id);
+    setSelectedExtras([]);
+    setStep(3);
+  };
+
   const handleContinue = () => {
-    if (step === 1) {
-      setSelectedSubOption(defaultSubOption[selectedCategory]);
-      setStep(2);
-    } else if (step === 2) {
-      setSelectedExtras([]);
-      setStep(3);
-    } else if (step === 3) {
+    if (step === 3) {
       setStep(4);
     }
   };
 
   const handleBack = () => {
     if (step === 2) {
+      setSelectedCategory("");
       setStep(1);
     } else if (step === 3) {
+      setSelectedSubOption("");
       setStep(2);
     } else if (step === 4) {
       setStep(3);
+    } else if (step === 5) {
+      setStep(4);
     }
   };
 
@@ -533,333 +547,354 @@ export default function Home() {
     opt.visibleFor.includes(selectedCategory)
   );
 
+  /* Step indicator helper — visible on steps 1-4 */
+  const showIndicator = step >= 1 && step <= TOTAL_STEPS;
+
   return (
     <div className={styles.container}>
       <div className={styles.formWrapper}>
-        {/* Step 1 — Category selection */}
-        {step === 1 && (
-          <>
-            <div className={styles.grid}>
-              {step1Options.map((option) => {
-                const Icon = iconMap[option.icon];
-                return (
-                  <button
-                    key={option.id}
-                    className={`${styles.card} ${
-                      selectedCategory === option.id ? styles.cardSelected : ""
-                    }`}
-                    onClick={() => setSelectedCategory(option.id)}
-                    type="button"
-                  >
-                    <div className={styles.iconWrapper}>
-                      <Icon />
-                    </div>
-                    <div className={styles.cardContent}>
-                      <h3 className={styles.cardTitle}>{option.title}</h3>
-                      <p className={styles.cardDescription}>
-                        {option.description}
-                      </p>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className={styles.buttonRow}>
-              <button
-                className={styles.continueButton}
-                type="button"
-                onClick={handleContinue}
-              >
-                <span>Continuer</span>
-                <ArrowRight />
-              </button>
-            </div>
-          </>
+        {/* Top bar: retour button (steps 2-5) */}
+        {step > 1 && (
+          <button
+            className={styles.topBackButton}
+            type="button"
+            onClick={handleBack}
+          >
+            <ArrowLeft />
+            <span>Retour</span>
+          </button>
         )}
 
-        {/* Step 2 — Sub-option selection */}
-        {step === 2 && (
-          <>
-            <div className={styles.rowList}>
-              {currentSubOptions.map((option) => {
-                const Icon = iconMap[option.icon];
-                return (
-                  <button
-                    key={option.id}
-                    className={`${styles.rowCard} ${
-                      selectedSubOption === option.id
-                        ? styles.rowCardSelected
-                        : ""
-                    }`}
-                    onClick={() => setSelectedSubOption(option.id)}
-                    type="button"
-                  >
-                    <div className={styles.rowLeft}>
+        {/* Animated segmented step indicator */}
+        {showIndicator && (
+          <div className={styles.stepIndicator}>
+            {Array.from({ length: TOTAL_STEPS }, (_, i) => (
+              <div key={i} className={styles.stepSegment}>
+                <motion.div
+                  className={styles.stepSegmentFill}
+                  initial={false}
+                  animate={{ scaleX: step > i ? 1 : 0 }}
+                  transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Step content with AnimatePresence */}
+        <AnimatePresence mode="wait">
+          {/* Step 1 — Category selection (no default, click to advance) */}
+          {step === 1 && (
+            <motion.div
+              key="step1"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+            >
+              <div className={styles.grid}>
+                {step1Options.map((option) => {
+                  const Icon = iconMap[option.icon];
+                  return (
+                    <button
+                      key={option.id}
+                      className={styles.card}
+                      onClick={() => handleSelectCategory(option.id)}
+                      type="button"
+                    >
                       <div className={styles.iconWrapper}>
                         <Icon />
                       </div>
-                      <div className={styles.rowTextContent}>
+                      <div className={styles.cardContent}>
                         <h3 className={styles.cardTitle}>{option.title}</h3>
                         <p className={styles.cardDescription}>
                           {option.description}
                         </p>
                       </div>
-                    </div>
-                    <div className={styles.rowPrice}>{option.price}</div>
-                  </button>
-                );
-              })}
-            </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
 
-            <div className={styles.buttonRow}>
-              <button
-                className={styles.backButton}
-                type="button"
-                onClick={handleBack}
-              >
-                <ArrowLeft />
-                <span>Retour</span>
-              </button>
-              <button
-                className={styles.continueButton}
-                type="button"
-                onClick={handleContinue}
-              >
-                <span>Continuer</span>
-                <ArrowRight />
-              </button>
-            </div>
-          </>
-        )}
-
-        {/* Step 3 — Complementary options (multi-select) */}
-        {step === 3 && (
-          <>
-            <div className={styles.step3Header}>
-              <h2 className={styles.step3Title}>Options complémentaires</h2>
-              <p className={styles.step3Subtitle}>
-                Sélectionnez 0 ou plusieurs options
-              </p>
-            </div>
-
-            <div className={styles.rowList}>
-              {currentStep3Options.map((option) => {
-                const Icon = iconMap[option.icon];
-                const isSelected = selectedExtras.includes(option.id);
-                return (
-                  <button
-                    key={option.id}
-                    className={`${styles.rowCard} ${
-                      isSelected ? styles.rowCardSelected : ""
-                    }`}
-                    onClick={() => toggleExtra(option.id)}
-                    type="button"
-                  >
-                    <div className={styles.rowLeft}>
-                      <div className={styles.iconWrapper}>
-                        <Icon />
+          {/* Step 2 — Sub-option selection (click to advance) */}
+          {step === 2 && (
+            <motion.div
+              key="step2"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+            >
+              <div className={styles.rowList}>
+                {currentSubOptions.map((option) => {
+                  const Icon = iconMap[option.icon];
+                  return (
+                    <button
+                      key={option.id}
+                      className={styles.rowCard}
+                      onClick={() => handleSelectSubOption(option.id)}
+                      type="button"
+                    >
+                      <div className={styles.rowLeft}>
+                        <div className={styles.iconWrapper}>
+                          <Icon />
+                        </div>
+                        <div className={styles.rowTextContent}>
+                          <h3 className={styles.cardTitle}>{option.title}</h3>
+                          <p className={styles.cardDescription}>
+                            {option.description}
+                          </p>
+                        </div>
                       </div>
-                      <div className={styles.rowTextContent}>
-                        <h3 className={styles.cardTitle}>{option.title}</h3>
-                        <p className={styles.cardDescription}>
-                          {option.description}
-                        </p>
-                      </div>
-                    </div>
-                    <div className={styles.rowRight}>
                       <div className={styles.rowPrice}>{option.price}</div>
-                      <div
-                        className={`${styles.checkbox} ${
-                          isSelected ? styles.checkboxSelected : ""
-                        }`}
-                      >
-                        {isSelected && <CheckIcon />}
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className={styles.buttonRow}>
-              <button
-                className={styles.backButton}
-                type="button"
-                onClick={handleBack}
-              >
-                <ArrowLeft />
-                <span>Retour</span>
-              </button>
-              <button
-                className={styles.continueButton}
-                type="button"
-                onClick={handleContinue}
-              >
-                <span>Continuer</span>
-                <ArrowRight />
-              </button>
-            </div>
-          </>
-        )}
-
-        {/* Step 4 — Contact form */}
-        {step === 4 && (
-          <>
-            <div className={styles.step3Header}>
-              <h2 className={styles.step3Title}>Vos coordonnées</h2>
-              <p className={styles.step3Subtitle}>
-                Dites-nous comment vous contacter
-              </p>
-            </div>
-
-            <div className={styles.formFields}>
-              <div className={styles.fieldGroup}>
-                <label className={styles.fieldLabel} htmlFor="name">
-                  Prénom & Nom
-                </label>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  className={styles.fieldInput}
-                  placeholder="Jean Dupont"
-                  value={contact.name}
-                  onChange={handleContactChange}
-                />
+                    </button>
+                  );
+                })}
               </div>
+            </motion.div>
+          )}
 
-              <div className={styles.fieldGroup}>
-                <label className={styles.fieldLabel} htmlFor="email">
-                  Email
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  className={styles.fieldInput}
-                  placeholder="jean@exemple.com"
-                  value={contact.email}
-                  onChange={handleContactChange}
-                />
-              </div>
-
-              <div className={styles.fieldGroup}>
-                <label className={styles.fieldLabel} htmlFor="phone">
-                  Téléphone
-                </label>
-                <input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  className={styles.fieldInput}
-                  placeholder="+33 6 12 34 56 78"
-                  value={contact.phone}
-                  onChange={handleContactChange}
-                />
-              </div>
-
-              <div className={styles.fieldGroup}>
-                <label className={styles.fieldLabel} htmlFor="description">
-                  Décrivez le projet
-                </label>
-                <textarea
-                  id="description"
-                  name="description"
-                  className={styles.fieldTextarea}
-                  placeholder="Parlez-nous de votre projet, vos objectifs, vos délais..."
-                  rows={5}
-                  value={contact.description}
-                  onChange={handleContactChange}
-                />
-              </div>
-            </div>
-
-            <div className={styles.buttonRow}>
-              <button
-                className={styles.backButton}
-                type="button"
-                onClick={handleBack}
-              >
-                <ArrowLeft />
-                <span>Retour</span>
-              </button>
-              <button
-                className={styles.continueButton}
-                type="button"
-                onClick={handleSubmit}
-              >
-                <span>Envoyer</span>
-                <ArrowRight />
-              </button>
-            </div>
-          </>
-        )}
-
-        {/* Step 5 — Confirmation */}
-        {step === 5 && (() => {
-          const subOption = getSubOptionData();
-          const extras = getExtraData();
-
-          return (
-            <>
-              <div className={styles.confirmationIcon}>
-                <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="24" cy="24" r="22" stroke="#8B5CF6" strokeWidth="2" />
-                  <path d="M15 24L21 30L33 18" stroke="#8B5CF6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
-
-              <div className={styles.confirmationHeader}>
-                <h2 className={styles.confirmationTitle}>
-                  Merci, {contact.name.split(" ")[0] || "votre demande"} !
-                </h2>
-                <p className={styles.confirmationSubtitle}>
-                  Votre demande a bien été envoyée. Nous reviendrons vers vous
-                  rapidement.
+          {/* Step 3 — Complementary options (multi-select) */}
+          {step === 3 && (
+            <motion.div
+              key="step3"
+              className={styles.stepContent}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+            >
+              <div className={styles.step3Header}>
+                <h2 className={styles.step3Title}>Options complémentaires</h2>
+                <p className={styles.step3Subtitle}>
+                  Sélectionnez 0 ou plusieurs options
                 </p>
               </div>
 
-              <div className={styles.recapCard}>
-                <h3 className={styles.recapTitle}>Récapitulatif</h3>
-                <div className={styles.recapRows}>
-                  <div className={styles.recapRow}>
-                    <span className={styles.recapLabel}>Catégorie</span>
-                    <span className={styles.recapValue}>{getCategoryTitle()}</span>
-                  </div>
-                  <div className={styles.recapRow}>
-                    <span className={styles.recapLabel}>Type</span>
-                    <span className={styles.recapValue}>{subOption?.title}</span>
-                  </div>
-                  <div className={styles.recapRow}>
-                    <span className={styles.recapLabel}>Fourchette</span>
-                    <span className={styles.recapValue}>{subOption?.price}</span>
-                  </div>
-                  {extras.length > 0 && (
-                    <div className={styles.recapRow}>
-                      <span className={styles.recapLabel}>Options</span>
-                      <span className={styles.recapValue}>
-                        {extras.map((e) => e.title).join(", ")}
-                      </span>
-                    </div>
-                  )}
+              <div className={styles.rowList}>
+                {currentStep3Options.map((option) => {
+                  const Icon = iconMap[option.icon];
+                  const isSelected = selectedExtras.includes(option.id);
+                  return (
+                    <button
+                      key={option.id}
+                      className={`${styles.rowCard} ${
+                        isSelected ? styles.rowCardSelected : ""
+                      }`}
+                      onClick={() => toggleExtra(option.id)}
+                      type="button"
+                    >
+                      <div className={styles.rowLeft}>
+                        <div className={styles.iconWrapper}>
+                          <Icon />
+                        </div>
+                        <div className={styles.rowTextContent}>
+                          <h3 className={styles.cardTitle}>{option.title}</h3>
+                          <p className={styles.cardDescription}>
+                            {option.description}
+                          </p>
+                        </div>
+                      </div>
+                      <div className={styles.rowRight}>
+                        <div className={styles.rowPrice}>{option.price}</div>
+                        <div
+                          className={`${styles.checkbox} ${
+                            isSelected ? styles.checkboxSelected : ""
+                          }`}
+                        >
+                          {isSelected && <CheckIcon />}
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className={styles.buttonRow}>
+                <div className={styles.estimatedPrice}>
+                  <span className={styles.estimatedPriceLabel}>Estimation</span>
+                  <span className={styles.estimatedPriceValue}>
+                    {getSubOptionData()?.price ?? ""}
+                  </span>
+                </div>
+                <button
+                  className={styles.continueButton}
+                  type="button"
+                  onClick={handleContinue}
+                >
+                  <span>Continuer</span>
+                  <ArrowRight />
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Step 4 — Contact form with Submit */}
+          {step === 4 && (
+            <motion.div
+              key="step4"
+              className={styles.stepContent}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+            >
+              <div className={styles.step3Header}>
+                <h2 className={styles.step3Title}>Vos coordonnées</h2>
+                <p className={styles.step3Subtitle}>
+                  Dites-nous comment vous contacter
+                </p>
+              </div>
+
+              <div className={styles.formFields}>
+                <div className={styles.fieldGroup}>
+                  <label className={styles.fieldLabel} htmlFor="name">
+                    Prénom & Nom
+                  </label>
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    className={styles.fieldInput}
+                    placeholder="Jean Dupont"
+                    value={contact.name}
+                    onChange={handleContactChange}
+                  />
+                </div>
+
+                <div className={styles.fieldGroup}>
+                  <label className={styles.fieldLabel} htmlFor="email">
+                    Email
+                  </label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    className={styles.fieldInput}
+                    placeholder="jean@exemple.com"
+                    value={contact.email}
+                    onChange={handleContactChange}
+                  />
+                </div>
+
+                <div className={styles.fieldGroup}>
+                  <label className={styles.fieldLabel} htmlFor="phone">
+                    Téléphone
+                  </label>
+                  <input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    className={styles.fieldInput}
+                    placeholder="+33 6 12 34 56 78"
+                    value={contact.phone}
+                    onChange={handleContactChange}
+                  />
+                </div>
+
+                <div className={styles.fieldGroup}>
+                  <label className={styles.fieldLabel} htmlFor="description">
+                    Décrivez le projet
+                  </label>
+                  <textarea
+                    id="description"
+                    name="description"
+                    className={styles.fieldTextarea}
+                    placeholder="Parlez-nous de votre projet, vos objectifs, vos délais..."
+                    rows={5}
+                    value={contact.description}
+                    onChange={handleContactChange}
+                  />
                 </div>
               </div>
 
-              <div className={styles.buttonRowCenter}>
-                <a
-                  href="https://cal.eu/ovek.io"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.continueButton}
+              <div className={styles.buttonRow}>
+                <button
+                  className={styles.submitButton}
+                  type="button"
+                  onClick={handleSubmit}
                 >
-                  <span>Réserver un appel</span>
+                  <span>Soumettre</span>
                   <ArrowRight />
-                </a>
+                </button>
               </div>
-            </>
-          );
-        })()}
+            </motion.div>
+          )}
+
+          {/* Step 5 — Confirmation */}
+          {step === 5 && (() => {
+            const subOption = getSubOptionData();
+            const extras = getExtraData();
+
+            return (
+              <motion.div
+                key="step5"
+                className={styles.stepContent}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -16 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              >
+                <div className={styles.confirmationIcon}>
+                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="24" cy="24" r="22" stroke="#8B5CF6" strokeWidth="2" />
+                    <path d="M15 24L21 30L33 18" stroke="#8B5CF6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+
+                <div className={styles.confirmationHeader}>
+                  <h2 className={styles.confirmationTitle}>
+                    Merci, {contact.name.split(" ")[0] || "votre demande"} !
+                  </h2>
+                  <p className={styles.confirmationSubtitle}>
+                    Votre demande a bien été envoyée. Nous reviendrons vers vous
+                    rapidement.
+                  </p>
+                </div>
+
+                <div className={styles.recapCard}>
+                  <h3 className={styles.recapTitle}>Récapitulatif</h3>
+                  <div className={styles.recapRows}>
+                    <div className={styles.recapRow}>
+                      <span className={styles.recapLabel}>Catégorie</span>
+                      <span className={styles.recapValue}>{getCategoryTitle()}</span>
+                    </div>
+                    <div className={styles.recapRow}>
+                      <span className={styles.recapLabel}>Type</span>
+                      <span className={styles.recapValue}>{subOption?.title}</span>
+                    </div>
+                    <div className={styles.recapRow}>
+                      <span className={styles.recapLabel}>Fourchette</span>
+                      <span className={styles.recapValue}>{subOption?.price}</span>
+                    </div>
+                    {extras.length > 0 && (
+                      <div className={styles.recapRow}>
+                        <span className={styles.recapLabel}>Options</span>
+                        <span className={styles.recapValue}>
+                          {extras.map((e) => e.title).join(", ")}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className={styles.buttonRowCenter}>
+                  <a
+                    href="https://cal.eu/ovek.io"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.continueButton}
+                  >
+                    <span>Réserver un appel</span>
+                    <ArrowRight />
+                  </a>
+                </div>
+              </motion.div>
+            );
+          })()}
+        </AnimatePresence>
       </div>
     </div>
   );
