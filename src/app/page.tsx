@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactElement } from "react";
 import styles from "./page.module.css";
 
 /* ---- Step 1 Data ---- */
@@ -409,7 +409,7 @@ function ShieldIcon() {
   );
 }
 
-const iconMap: Record<string, () => JSX.Element> = {
+const iconMap: Record<string, () => ReactElement> = {
   globe: GlobeIcon,
   cog: CogIcon,
   code: CodeIcon,
