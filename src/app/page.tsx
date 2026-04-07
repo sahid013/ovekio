@@ -432,6 +432,65 @@ const iconMap: Record<string, () => ReactElement> = {
   shield: ShieldIcon,
 };
 
+/* ---- Price helpers ---- */
+
+function parsePrice(price: string): { min: number | null; max: number | null } {
+  // "Sur devis" or similar non-numeric
+  const nums = price.match(/[\d][\d\s]*/g);
+  if (!nums) return { min: null, max: null };
+  const parsed = nums.map((n) => parseInt(n.replace(/\s/g, ""), 10));
+  if (parsed.length >= 2) return { min: parsed[0], max: parsed[1] };
+  return { min: parsed[0], max: parsed[0] };
+}
+
+function formatNum(n: number): string {
+  return n.toLocaleString("fr-FR");
+}
+
+function computeEstimate(
+  basePrice: string,
+  extras: Step3Option[]
+): string {
+  const base = parsePrice(basePrice);
+
+  // If the base itself is non-numeric, just return it as-is
+  if (base.min === null) return basePrice;
+
+  let totalMin = base.min;
+  let totalMax = base.max ?? base.min;
+  const notes: string[] = [];
+
+  for (const extra of extras) {
+    const p = extra.price;
+    // Skip monthly / non-summable
+    if (p.includes("/ mois")) {
+      notes.push(p);
+      continue;
+    }
+    const parsed = parsePrice(p);
+    if (parsed.min === null) {
+      // "Sur devis" type
+      notes.push(p);
+      continue;
+    }
+    totalMin += parsed.min;
+    totalMax += parsed.max ?? parsed.min;
+  }
+
+  let result: string;
+  if (totalMin === totalMax) {
+    result = `${formatNum(totalMin)} EUR`;
+  } else {
+    result = `${formatNum(totalMin)} - ${formatNum(totalMax)} EUR`;
+  }
+
+  if (notes.length > 0) {
+    result += ` + ${notes.join(" + ")}`;
+  }
+
+  return result;
+}
+
 /* ---- Arrow Icons ---- */
 
 function ArrowRight() {
@@ -473,6 +532,8 @@ export default function Home() {
     phone: "",
     description: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const handleSelectCategory = (id: string) => {
     setSelectedCategory(id);
@@ -513,15 +574,49 @@ export default function Home() {
     setContact((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = () => {
-    // TODO: send email payload to contact@ovek.io
-    console.log({
-      category: selectedCategory,
-      subOption: selectedSubOption,
-      extras: selectedExtras,
-      contact,
-    });
-    setStep(5);
+  const handleSubmit = async () => {
+    if (!contact.name || !contact.email) {
+      setSubmitError("Veuillez remplir au moins votre nom et email.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitError("");
+
+    const subOption = getSubOptionData();
+    const extras = getExtraData();
+    const estimate = computeEstimate(
+      subOption?.price ?? "",
+      extras
+    );
+
+    try {
+      const res = await fetch("/api/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          category: getCategoryTitle(),
+          subOption: subOption?.title ?? "",
+          subOptionPrice: subOption?.price ?? "",
+          extras: extras.map((e) => ({ title: e.title, price: e.price })),
+          estimate,
+          contact,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Erreur lors de l'envoi.");
+      }
+
+      setStep(5);
+    } catch (err) {
+      setSubmitError(
+        err instanceof Error ? err.message : "Erreur lors de l'envoi."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   /* Recap helpers */
@@ -587,11 +682,19 @@ export default function Home() {
           {step === 1 && (
             <motion.div
               key="step1"
+              className={styles.stepContent}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -16 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
             >
+              <div className={styles.step3Header}>
+                <h2 className={styles.step3Title}>Quel est votre projet ?</h2>
+                <p className={styles.step3Subtitle}>
+                  Sélectionnez une catégorie pour démarrer.
+                </p>
+              </div>
+
               <div className={styles.grid}>
                 {step1Options.map((option) => {
                   const Icon = iconMap[option.icon];
@@ -716,7 +819,10 @@ export default function Home() {
                 <div className={styles.estimatedPrice}>
                   <span className={styles.estimatedPriceLabel}>Estimation</span>
                   <span className={styles.estimatedPriceValue}>
-                    {getSubOptionData()?.price ?? ""}
+                    {computeEstimate(
+                      getSubOptionData()?.price ?? "",
+                      getExtraData()
+                    )}
                   </span>
                 </div>
                 <button
@@ -810,14 +916,28 @@ export default function Home() {
                 </div>
               </div>
 
+              {submitError && (
+                <p className={styles.errorMessage}>{submitError}</p>
+              )}
+
               <div className={styles.buttonRow}>
                 <button
                   className={styles.submitButton}
                   type="button"
                   onClick={handleSubmit}
+                  disabled={isSubmitting}
                 >
-                  <span>Soumettre</span>
-                  <ArrowRight />
+                  {isSubmitting ? (
+                    <>
+                      <span className={styles.spinner} />
+                      <span>Envoi en cours...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Soumettre</span>
+                      <ArrowRight />
+                    </>
+                  )}
                 </button>
               </div>
             </motion.div>
