@@ -49,21 +49,21 @@ const step2Options: Record<string, SubOption[]> = {
       id: "landing",
       title: "Landing Page",
       description: "Une seule page, pensée pour convertir",
-      price: "1 400 - 2 900 EUR",
+      price: "1 400 - 2 900 €",
       icon: "landing",
     },
     {
       id: "vitrine",
       title: "Site Vitrine",
       description: "Plusieurs pages, pour présenter votre activité",
-      price: "2 000 - 5 000 EUR",
+      price: "2 000 - 5 000 €",
       icon: "vitrine",
     },
     {
       id: "ecommerce",
       title: "Site E-commerce",
       description: "Vendez vos produits ou services en ligne",
-      price: "3 000 - 18 000 EUR",
+      price: "3 000 - 18 000 €",
       icon: "cart",
     },
     {
@@ -79,21 +79,21 @@ const step2Options: Record<string, SubOption[]> = {
       id: "crm",
       title: "CRM",
       description: "Gérez vos contacts, clients et suivi commercial",
-      price: "6 000 - 22 000 EUR",
+      price: "6 000 - 22 000 €",
       icon: "users",
     },
     {
       id: "outil-interne",
       title: "Outil interne",
       description: "Automatisez un process spécifique à votre métier",
-      price: "3 000 - 13 000 EUR",
+      price: "3 000 - 13 000 €",
       icon: "wrench",
     },
     {
       id: "plateforme-metier",
       title: "Plateforme métier complète",
       description: "Un écosystème sur mesure pour piloter toute votre activité",
-      price: "10 000 - 35 000 EUR",
+      price: "10 000 - 35 000 €",
       icon: "layers",
     },
     {
@@ -109,14 +109,14 @@ const step2Options: Record<string, SubOption[]> = {
       id: "mvp",
       title: "MVP",
       description: "Testez votre idée avec une première version fonctionnelle",
-      price: "4 000 - 18 000 EUR",
+      price: "4 000 - 18 000 €",
       icon: "rocket",
     },
     {
       id: "saas",
       title: "SaaS",
       description: "Un produit en ligne que vous vendez à vos clients",
-      price: "13 000 - 40 000 EUR",
+      price: "13 000 - 40 000 €",
       icon: "cloud",
     },
     {
@@ -132,14 +132,14 @@ const step2Options: Record<string, SubOption[]> = {
       id: "automatisation",
       title: "Automatisation de process",
       description: "Connectez vos outils, éliminez les tâches répétitives",
-      price: "1 500 - 8 000 EUR",
+      price: "1 500 - 8 000 €",
       icon: "zap",
     },
     {
       id: "ia-integree",
       title: "IA intégrée à un produit",
       description: "Ajoutez une couche IA à votre logiciel existant",
-      price: "4 000 - 20 000 EUR",
+      price: "4 000 - 20 000 €",
       icon: "brain",
     },
     {
@@ -159,6 +159,25 @@ const defaultSubOption: Record<string, string> = {
   ia: "automatisation",
 };
 
+const step2Headers: Record<string, { title: string; subtitle: string }> = {
+  site: {
+    title: "Quel type de site ?",
+    subtitle: "Choisissez le format adapté à votre objectif.",
+  },
+  logiciel: {
+    title: "Quel type de logiciel ?",
+    subtitle: "Sélectionnez l'outil qui correspond à votre besoin métier.",
+  },
+  webapp: {
+    title: "Quel type d'application ?",
+    subtitle: "Choisissez le format de votre produit digital.",
+  },
+  ia: {
+    title: "Quel besoin en IA ?",
+    subtitle: "Sélectionnez la solution d'automatisation adaptée.",
+  },
+};
+
 /* ---- Step 3 Data ---- */
 
 type Step3Option = {
@@ -175,7 +194,7 @@ const step3Options: Step3Option[] = [
     id: "motion",
     title: "Motion Design",
     description: "Animations et transitions pour un site qui marque",
-    price: "À partir de 1 400 EUR",
+    price: "À partir de 1 400 €",
     icon: "motion",
     visibleFor: ["site"],
   },
@@ -183,7 +202,7 @@ const step3Options: Step3Option[] = [
     id: "visitors",
     title: "Visitors (taap.it)",
     description: "Trackez vos visites et conversions",
-    price: "30 EUR / mois",
+    price: "30 € / mois",
     icon: "chart",
     visibleFor: ["site", "logiciel", "webapp", "ia"],
   },
@@ -199,7 +218,7 @@ const step3Options: Step3Option[] = [
     id: "landing-extra",
     title: "Landing Page",
     description: "Une seule page, pensée pour convertir",
-    price: "1 400 - 2 900 EUR",
+    price: "1 400 - 2 900 €",
     icon: "landing",
     visibleFor: ["logiciel", "webapp", "ia"],
   },
@@ -207,7 +226,7 @@ const step3Options: Step3Option[] = [
     id: "vitrine-extra",
     title: "Site Vitrine",
     description: "Plusieurs pages, pour présenter votre activité",
-    price: "2 000 - 5 000 EUR",
+    price: "2 000 - 5 000 €",
     icon: "vitrine",
     visibleFor: ["logiciel", "webapp", "ia"],
   },
@@ -479,9 +498,9 @@ function computeEstimate(
 
   let result: string;
   if (totalMin === totalMax) {
-    result = `${formatNum(totalMin)} EUR`;
+    result = `${formatNum(totalMin)} €`;
   } else {
-    result = `${formatNum(totalMin)} - ${formatNum(totalMax)} EUR`;
+    result = `${formatNum(totalMin)} - ${formatNum(totalMax)} €`;
   }
 
   if (notes.length > 0) {
@@ -575,8 +594,8 @@ export default function Home() {
   };
 
   const handleSubmit = async () => {
-    if (!contact.name || !contact.email) {
-      setSubmitError("Veuillez remplir au moins votre nom et email.");
+    if (!contact.name || !contact.email || !contact.phone) {
+      setSubmitError("Veuillez remplir votre nom, email et téléphone.");
       return;
     }
 
@@ -725,11 +744,21 @@ export default function Home() {
           {step === 2 && (
             <motion.div
               key="step2"
+              className={styles.stepContent}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -16 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
             >
+              <div className={styles.step3Header}>
+                <h2 className={styles.step3Title}>
+                  {step2Headers[selectedCategory]?.title ?? "Quel format ?"}
+                </h2>
+                <p className={styles.step3Subtitle}>
+                  {step2Headers[selectedCategory]?.subtitle ?? ""}
+                </p>
+              </div>
+
               <div className={styles.rowList}>
                 {currentSubOptions.map((option) => {
                   const Icon = iconMap[option.icon];
@@ -770,9 +799,11 @@ export default function Home() {
               transition={{ duration: 0.3, ease: "easeOut" }}
             >
               <div className={styles.step3Header}>
-                <h2 className={styles.step3Title}>Options complémentaires</h2>
+                <h2 className={styles.step3Title}>
+                  Personnalisez votre projet
+                </h2>
                 <p className={styles.step3Subtitle}>
-                  Sélectionnez 0 ou plusieurs options
+                  Ajoutez les options qui correspondent à vos besoins (facultatif).
                 </p>
               </div>
 
@@ -848,16 +879,18 @@ export default function Home() {
               transition={{ duration: 0.3, ease: "easeOut" }}
             >
               <div className={styles.step3Header}>
-                <h2 className={styles.step3Title}>Vos coordonnées</h2>
+                <h2 className={styles.step3Title}>
+                  Parlons de votre projet
+                </h2>
                 <p className={styles.step3Subtitle}>
-                  Dites-nous comment vous contacter
+                  Laissez-nous vos coordonnées, on revient vers vous sous 24h.
                 </p>
               </div>
 
               <div className={styles.formFields}>
                 <div className={styles.fieldGroup}>
                   <label className={styles.fieldLabel} htmlFor="name">
-                    Prénom & Nom
+                    Prénom & Nom *
                   </label>
                   <input
                     id="name"
@@ -867,12 +900,13 @@ export default function Home() {
                     placeholder="Jean Dupont"
                     value={contact.name}
                     onChange={handleContactChange}
+                    required
                   />
                 </div>
 
                 <div className={styles.fieldGroup}>
                   <label className={styles.fieldLabel} htmlFor="email">
-                    Email
+                    Email *
                   </label>
                   <input
                     id="email"
@@ -882,12 +916,13 @@ export default function Home() {
                     placeholder="jean@exemple.com"
                     value={contact.email}
                     onChange={handleContactChange}
+                    required
                   />
                 </div>
 
                 <div className={styles.fieldGroup}>
                   <label className={styles.fieldLabel} htmlFor="phone">
-                    Téléphone
+                    Téléphone *
                   </label>
                   <input
                     id="phone"
@@ -897,6 +932,7 @@ export default function Home() {
                     placeholder="+33 6 12 34 56 78"
                     value={contact.phone}
                     onChange={handleContactChange}
+                    required
                   />
                 </div>
 

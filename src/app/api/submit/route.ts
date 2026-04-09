@@ -24,9 +24,9 @@ export async function POST(request: Request) {
       body;
 
     // Basic validation
-    if (!contact.name || !contact.email) {
+    if (!contact.name || !contact.email || !contact.phone) {
       return NextResponse.json(
-        { error: "Le nom et l'email sont requis." },
+        { error: "Le nom, l'email et le téléphone sont requis." },
         { status: 400 }
       );
     }
@@ -108,7 +108,7 @@ export async function POST(request: Request) {
     }
 
     const { error } = await resend.emails.send({
-      from: "Ovekio <onboarding@resend.dev>",
+      from: "Ovekio <contact@ovek.io>",
       to: "contact@ovek.io",
       replyTo: contact.email,
       subject: `Nouvelle demande — ${category} / ${subOption}`,
